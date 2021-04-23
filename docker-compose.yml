@@ -1,0 +1,26 @@
+version: '3'
+services:
+  icap:
+    container_name: icap
+    build: ./icap
+    volumes:
+      - ./icap/icap.py:/icap.py
+    network_mode: 'host'
+  squid:
+    container_name: squid
+    build: ./squid
+    depends_on:
+      - icap
+    volumes:
+      - ./squid/squid.conf:/etc/squid/squid.conf
+      - ./cert.pem:/etc/squid/cert.pem
+    network_mode: 'host'
+  client:
+    container_name: client
+    build: ./client
+    depends_on:
+      - squid
+    volumes:
+      - ./cert.pem:/etc/pki/ca-trust/source/anchors/cert.pem
+      - ./client/client.sh:/client.sh
+    network_mode: 'host'
